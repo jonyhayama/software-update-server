@@ -12,3 +12,6 @@ Author URI: https://jony.co
 
 ## Third Party Info
 - WP Update Server version 1.3.1
+
+## Filter Reference
+- 'softupdatemgr/add_license_validation_method'
