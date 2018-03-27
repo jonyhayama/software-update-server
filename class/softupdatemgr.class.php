@@ -5,9 +5,7 @@
  */
 class softupdatemgr{
     protected $updateServer;
-	protected $licenseValidationMethods = array(
-		'no-validation' => '__return_true',
-	);
+	protected $licenseValidationMethods = array();
 
     public function __construct(){
         require_once SOFTUPDATEMGR_DIR_PATH . 'class/softupdatemgr-server.class.php';
@@ -20,8 +18,19 @@ class softupdatemgr{
 		// Adds License Validation Methods Filter
 		add_action( 'plugins_loaded', array( $this, 'applyLicenseValidationMethodsFilter' ) );
 		add_filter( 'softupdatemgr/add_license_validation_method', array( $this, 'addLicenseValidationMethods' ) );
+		
+		// Load Settings Class
+		require_once SOFTUPDATEMGR_DIR_PATH . 'class/softupdatemgr-settings.class.php'; 
+		$this->settings = new softupdatemgr_settings;
     }
-
+	
+	public function getModule( $module ){
+		if( property_exists( $this, $module ) ){
+			return $this->$module;
+		}
+		return false;
+	}
+	
     public function addQueryVariables($queryVariables) {
 		$queryVariables = array_merge($queryVariables, array(
 			'softupdatemgr_action',
@@ -41,9 +50,16 @@ class softupdatemgr{
 	}
 
 	public function addLicenseValidationMethods( $methods ){
+		$methods['no-validation'] = array( 
+			'title' => __( 'No Validation', 'softupdatemgr' ), 
+			'callback' => '__return_true' 
+		);
 		$is_plugin_active = true;
 		if( $is_plugin_active ){
-			$methods['software-license-manager'] = array( $this, 'validateSLMLicense' );
+			$methods['software-license-manager'] = array( 
+				'title' => __( 'Software Manager License Key', 'softupdatemgr' ), 
+				'callback' => array( $this, 'validateSLMLicense' ) 
+			);
 		}
 		return $methods;
 	}
@@ -53,9 +69,10 @@ class softupdatemgr{
 	}
 
 	public function isValidLicense( $license ){
+		$licenseValidationMethods = $this->getLicenseValidationMethods();
 		$validationMethod = 'no-validation';
-		$validationMethod = $this->licenseValidationMethods[$validationMethod];
-		return call_user_func( $validationMethod, $license );
+		$validationMethod = $licenseValidationMethods[$validationMethod];
+		return call_user_func( $validationMethod['callback'], $license );
 	}
 
 	public function isAuthenticatedRequest(){
@@ -65,5 +82,9 @@ class softupdatemgr{
 
 	public function validateSLMLicense( $license ){
 		return true;
+	}
+	
+	public function getLicenseValidationMethods(){
+		return $this->licenseValidationMethods;
 	}
 }
