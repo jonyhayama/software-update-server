@@ -7,12 +7,7 @@ class softupdatemgr_server extends Wpup_UpdateServer{
             'softupdatemgr_action' => 'download',
             'softupdatemgr_slug' => $package->slug,
         );
-        if( softupdatemgr()->isAuthenticatedRequest() ){
-            $license = get_query_var('softupdatemgr_license');
-            if( $license ){
-                $query['softupdatemgr_license'] = $license;
-            }
-        }
+		$query = apply_filters( 'softupadtemgr/server/generateDownloadUrl/query', $query );
         return self::addQueryArg( $query, $this->serverUrl );
     }
 
@@ -26,7 +21,8 @@ class softupdatemgr_server extends Wpup_UpdateServer{
 	}
     protected function actionDownload(Wpup_Request $request) {
         if( !softupdatemgr()->isAuthenticatedRequest() ){
-		    $this->exitWithError('Downloads are disabled.', 403);
+		    $this->exitWithError('Unauthorized download.', 403);
         }
+		parent::actionDownload( $request );
 	}
 }

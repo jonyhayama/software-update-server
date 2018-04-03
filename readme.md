@@ -15,3 +15,4 @@ Author URI: https://jony.co
 
 ## Filter Reference
 - 'softupdatemgr/add_license_validation_method'
+- 'softupadtemgr/server/generateDownloadUrl/query'

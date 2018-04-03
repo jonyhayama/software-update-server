@@ -19,6 +19,7 @@ class softupdatemgr{
 		// Adds License Validation Methods Filter
 		add_action( 'plugins_loaded', array( $this, 'applyLicenseValidationMethodsFilter' ) );
 		add_filter( 'softupdatemgr/add_license_validation_method', array( $this, 'addLicenseValidationMethods' ) );
+		add_filter( 'softupadtemgr/server/generateDownloadUrl/query', array( $this, 'ServerDownloadQuery' ) );
 		
 		// Load Settings Class
 		require_once SOFTUPDATEMGR_DIR_PATH . 'class/softupdatemgr-settings.class.php'; 
@@ -62,6 +63,16 @@ class softupdatemgr{
 		
 		return $methods;
 	}
+	
+	public function ServerDownloadQuery( $query ){
+		if( $this->isAuthenticatedRequest() ){
+            $license = get_query_var('softupdatemgr_license');
+            if( $license ){
+                $query['softupdatemgr_license'] = $license;
+            }
+        }
+		return $query;
+	}
 
 	public function applyLicenseValidationMethodsFilter(){
 		$this->licenseValidationMethods = apply_filters( 'softupdatemgr/add_license_validation_method', $this->licenseValidationMethods );
@@ -69,14 +80,18 @@ class softupdatemgr{
 
 	public function isValidLicense( $license ){
 		$licenseValidationMethods = $this->getLicenseValidationMethods();
-		$validationMethod = 'no-validation';
+		$validationMethod = $this->settings->get_option( 'validation_method' );
 		$validationMethod = $licenseValidationMethods[$validationMethod];
 		return call_user_func( $validationMethod['callback'], $license );
 	}
 
 	public function isAuthenticatedRequest(){
-		$license = get_query_var('softupdatemgr_license');
-		return $this->isValidLicense( $license );
+		static $authenticatedRequest = null;
+		if( !$authenticatedRequest ){
+			$license = get_query_var('softupdatemgr_license');
+			$authenticatedRequest = $this->isValidLicense( $license );
+		}
+		return $authenticatedRequest;
 	}
 	
 	public function getLicenseValidationMethods(){
