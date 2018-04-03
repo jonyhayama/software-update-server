@@ -6,6 +6,7 @@
 class softupdatemgr{
     protected $updateServer;
 	protected $licenseValidationMethods = array();
+	protected $integration = array();
 
     public function __construct(){
         require_once SOFTUPDATEMGR_DIR_PATH . 'class/softupdatemgr-server.class.php';
@@ -22,6 +23,10 @@ class softupdatemgr{
 		// Load Settings Class
 		require_once SOFTUPDATEMGR_DIR_PATH . 'class/softupdatemgr-settings.class.php'; 
 		$this->settings = new softupdatemgr_settings;
+		
+		// Load SLM Integration
+		require_once SOFTUPDATEMGR_DIR_PATH . 'class/softupdatemgr-slm-integration.class.php'; 
+		$this->integration['slm'] = new softupdatemgr_SLM_Integration;
     }
 	
 	public function getModule( $module ){
@@ -54,13 +59,7 @@ class softupdatemgr{
 			'title' => __( 'No Validation', 'softupdatemgr' ), 
 			'callback' => '__return_true' 
 		);
-		$is_plugin_active = true;
-		if( $is_plugin_active ){
-			$methods['software-license-manager'] = array( 
-				'title' => __( 'Software Manager License Key', 'softupdatemgr' ), 
-				'callback' => array( $this, 'validateSLMLicense' ) 
-			);
-		}
+		
 		return $methods;
 	}
 
@@ -78,10 +77,6 @@ class softupdatemgr{
 	public function isAuthenticatedRequest(){
 		$license = get_query_var('softupdatemgr_license');
 		return $this->isValidLicense( $license );
-	}
-
-	public function validateSLMLicense( $license ){
-		return true;
 	}
 	
 	public function getLicenseValidationMethods(){
