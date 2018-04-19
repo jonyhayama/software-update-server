@@ -1,6 +1,6 @@
 # Software Update Server
 
-Plugin URI: https://bitbucket.org/jonyhayama/software-update-server
+Plugin URI: https://github.com/jonyhayama/software-update-server
 
 Description: Easily serve WordPress Themes or Plugins. Based on [WP Update Server](https://github.com/YahnisElsts/wp-update-server) by [Yahnis Elsts](https://github.com/YahnisElsts/)
 
