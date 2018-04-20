@@ -10,6 +10,11 @@ Author: Jony Hayama
 
 Author URI: https://jony.co
 
+## TODO:
+
+- Fix default "no-validation" setting. System does not recognize it on a fresh plugin install (you need to go to settings and save options)
+- Create Documentation
+
 ## Third Party Info
 - WP Update Server version 1.3.1
 
